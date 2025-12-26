@@ -1,0 +1,163 @@
+/* Paige's Markdown Viewer - Editor Styles */
+.markdown-viewer-editor {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background: #fff;
+}
+
+.markdown-viewer-editor-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.markdown-viewer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f0f0f0;
+    border-bottom: 1px solid #ddd;
+}
+
+.markdown-viewer-title {
+    font-weight: 600;
+    font-size: 14px;
+    color: #1e1e1e;
+}
+
+.markdown-viewer-toggle-preview {
+    background: #0073aa;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.markdown-viewer-toggle-preview:hover {
+    background: #005a87;
+}
+
+.markdown-viewer-tabs {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    background: #fafafa;
+}
+
+.markdown-viewer-tab {
+    flex: 1;
+    padding: 10px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.markdown-viewer-tab:hover {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.markdown-viewer-tab.active {
+    color: #0073aa;
+    border-bottom-color: #0073aa;
+    background: #fff;
+}
+
+.markdown-viewer-input-area {
+    padding: 16px;
+}
+
+.markdown-viewer-textarea {
+    width: 100%;
+    min-height: 300px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.5;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.markdown-viewer-textarea:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 0 1px #0073aa;
+}
+
+.markdown-viewer-textarea::placeholder {
+    color: #999;
+}
+
+.markdown-viewer-url-input {
+    padding: 20px 0;
+}
+
+.markdown-viewer-url-input .components-text-control__input {
+    font-family: monospace;
+}
+
+.markdown-viewer-url-input .components-base-control__help {
+    color: #666;
+    font-size: 12px;
+}
+
+.markdown-viewer-preview {
+    padding: 16px;
+    min-height: 200px;
+    background: #fafafa;
+}
+
+/* Preview styles - inherit from main style.css */
+.markdown-viewer-preview.markdown-viewer-content pre {
+    background-color: #f6f8fa;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 1em;
+    margin: 1em 0;
+    overflow-x: auto;
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier New', monospace;
+    font-size: 0.875em;
+    line-height: 1.5;
+}
+
+.markdown-viewer-preview.markdown-viewer-content code {
+    background-color: #f0f0f0;
+    border: 1px solid #e1e4e8;
+    border-radius: 4px;
+    padding: 0.2em 0.4em;
+    font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', 'Menlo', 'Courier New', monospace;
+    font-size: 0.875em;
+}
+
+.markdown-viewer-preview.markdown-viewer-content pre code {
+    background: none;
+    border: none;
+    padding: 0;
+}
+
+.markdown-viewer-preview.markdown-viewer-content h1,
+.markdown-viewer-preview.markdown-viewer-content h2,
+.markdown-viewer-preview.markdown-viewer-content h3,
+.markdown-viewer-preview.markdown-viewer-content h4,
+.markdown-viewer-preview.markdown-viewer-content h5,
+.markdown-viewer-preview.markdown-viewer-content h6 {
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    font-weight: 600;
+}
+
+.markdown-viewer-preview.markdown-viewer-content blockquote {
+    border-left: 4px solid #dfe2e5;
+    padding: 0.5em 1em;
+    margin: 1em 0;
+    color: #6a737d;
+    background-color: #f9f9f9;
+}
