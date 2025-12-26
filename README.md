@@ -41,17 +41,11 @@ Use the `[paiges_markdown]` shortcode anywhere shortcodes are supported:
 
 #### Direct Content
 
-```
+```text
 [paiges_markdown]
 # Hello World
 
 This is **bold** and *italic* text.
-
-## Code Example
-
-```javascript
-console.log("Hello from Markdown!");
-```
 
 - List item 1
 - List item 2
