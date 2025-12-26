@@ -14,14 +14,142 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Enqueue thickbox on plugins page for View Details modal
+ * Install MU-plugin for View Details functionality (works even when deactivated)
  */
-function paiges_markdown_viewer_admin_scripts($hook) {
-    if ($hook === 'plugins.php') {
+function paiges_markdown_viewer_install_mu_plugin() {
+    $mu_plugins_dir = WPMU_PLUGIN_DIR;
+    $mu_plugin_file = $mu_plugins_dir . '/paiges-markdown-viewer-info.php';
+
+    // Create mu-plugins directory if it doesn't exist
+    if (!is_dir($mu_plugins_dir)) {
+        wp_mkdir_p($mu_plugins_dir);
+    }
+
+    // Create the MU-plugin file
+    $mu_plugin_content = '<?php
+/**
+ * Plugin Name: Paige\'s Markdown Viewer - Plugin Info
+ * Description: Provides View Details functionality for Paige\'s Markdown Viewer
+ * Version: 1.0.0
+ */
+
+if (!defined("ABSPATH")) exit;
+
+// Enqueue thickbox on plugins page
+add_action("admin_enqueue_scripts", function($hook) {
+    if ($hook === "plugins.php") {
         add_thickbox();
     }
+});
+
+// Add View Details link to plugin row meta
+add_filter("plugin_row_meta", function($links, $file) {
+    if ($file === "paiges-markdown-viewer/paiges-markdown-viewer.php") {
+        $details_link = sprintf(
+            \'<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s" data-title="%s">%s</a>\',
+            esc_url(admin_url("plugin-install.php?tab=plugin-information&plugin=paiges-markdown-viewer&TB_iframe=true&width=600&height=550")),
+            esc_attr__("More information about Paige\'s Markdown Viewer", "paiges-markdown-viewer"),
+            esc_attr__("Paige\'s Markdown Viewer", "paiges-markdown-viewer"),
+            __("View details", "paiges-markdown-viewer")
+        );
+        $links[] = $details_link;
+        $links[] = \'<a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">\' . __("Donate", "paiges-markdown-viewer") . \'</a>\';
+    }
+    return $links;
+}, 10, 2);
+
+// Provide plugin information for the details popup
+add_filter("plugins_api", function($result, $action, $args) {
+    if ($action !== "plugin_information") {
+        return $result;
+    }
+
+    if (!isset($args->slug) || $args->slug !== "paiges-markdown-viewer") {
+        return $result;
+    }
+
+    // Get version from main plugin file if it exists
+    $version = "1.0.0";
+    $plugin_file = WP_PLUGIN_DIR . "/paiges-markdown-viewer/paiges-markdown-viewer.php";
+    if (file_exists($plugin_file)) {
+        $plugin_data = get_file_data($plugin_file, array("Version" => "Version"));
+        if (!empty($plugin_data["Version"])) {
+            $version = $plugin_data["Version"];
+        }
+    }
+
+    $plugin_info = new stdClass();
+    $plugin_info->name = "Paige\'s Markdown Viewer";
+    $plugin_info->slug = "paiges-markdown-viewer";
+    $plugin_info->version = $version;
+    $plugin_info->author = \'<a href="https://paigejulianne.com/">Paige Julianne Sullivan</a>\';
+    $plugin_info->homepage = "https://paigejulianne.com/";
+    $plugin_info->requires = "5.0";
+    $plugin_info->tested = "6.9";
+    $plugin_info->requires_php = "7.4";
+    $plugin_info->downloaded = 0;
+    $plugin_info->last_updated = date("Y-m-d");
+    $plugin_info->sections = array(
+        "description" => \'
+            <p>A customizable WordPress block that renders Markdown content with proper styling. Enter markdown directly in the editor or load it from a URL (including GitHub files).</p>
+            <h4>Features</h4>
+            <ul>
+                <li>Gutenberg block for the WordPress editor</li>
+                <li>Shortcode support for classic editor and widgets</li>
+                <li>Load markdown from external URLs</li>
+                <li>Automatic GitHub URL conversion to raw format</li>
+                <li>Scrollable content with max-height option</li>
+                <li>Clean, readable styling with dark mode support</li>
+            </ul>
+        \',
+        "installation" => \'
+            <ol>
+                <li>Upload the plugin folder to <code>/wp-content/plugins/</code></li>
+                <li>Activate the plugin through the Plugins menu in WordPress</li>
+                <li>Use the block editor to add "Paige\\\'s Markdown Viewer" or use the shortcode</li>
+            </ol>
+        \',
+        "usage" => \'
+            <h4>Block Editor</h4>
+            <p>Search for "Markdown" in the block inserter or find it in the Text category.</p>
+            <h4>Shortcode</h4>
+            <p>Use the <code>[paiges_markdown]</code> shortcode:</p>
+            <pre>[paiges_markdown]
+# Your Markdown Here
+This is **bold** and *italic* text.
+[/paiges_markdown]</pre>
+            <p>Or load from a URL:</p>
+            <pre>[paiges_markdown url="https://example.com/readme.md"]</pre>
+            <pre>[paiges_markdown url="https://github.com/user/repo/blob/main/README.md" max_height="400"]</pre>
+        \',
+        "other_notes" => \'
+            <h4>Support Development</h4>
+            <p>If you find this plugin useful, please consider <a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">making a donation</a> to support continued development.</p>
+        \',
+    );
+    $plugin_info->donate_link = "https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN";
+    $plugin_info->banners = array();
+    $plugin_info->icons = array();
+
+    return $plugin_info;
+}, 20, 3);
+';
+
+    // Write the MU-plugin file
+    file_put_contents($mu_plugin_file, $mu_plugin_content);
 }
-add_action('admin_enqueue_scripts', 'paiges_markdown_viewer_admin_scripts');
+register_activation_hook(__FILE__, 'paiges_markdown_viewer_install_mu_plugin');
+
+/**
+ * Remove MU-plugin on uninstall (not deactivation)
+ */
+function paiges_markdown_viewer_uninstall_mu_plugin() {
+    $mu_plugin_file = WPMU_PLUGIN_DIR . '/paiges-markdown-viewer-info.php';
+    if (file_exists($mu_plugin_file)) {
+        unlink($mu_plugin_file);
+    }
+}
+// Note: This runs on uninstall, not deactivation, so View Details remains available
 
 // Include Parsedown library
 require_once plugin_dir_path(__FILE__) . 'lib/Parsedown.php';
@@ -280,90 +408,3 @@ function paiges_markdown_viewer_enqueue_styles() {
 add_action('wp_enqueue_scripts', 'paiges_markdown_viewer_enqueue_styles');
 add_action('enqueue_block_assets', 'paiges_markdown_viewer_enqueue_styles');
 
-/**
- * Add View Details link to plugin row meta (author line)
- */
-function paiges_markdown_viewer_row_meta($links, $file) {
-    if ($file === plugin_basename(__FILE__)) {
-        $details_link = sprintf(
-            '<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s" data-title="%s">%s</a>',
-            esc_url(admin_url('plugin-install.php?tab=plugin-information&plugin=paiges_markdown_viewer&TB_iframe=true&width=600&height=550')),
-            esc_attr__("More information about Paige's Markdown Viewer", 'paiges-markdown-viewer'),
-            esc_attr__("Paige's Markdown Viewer", 'paiges-markdown-viewer'),
-            __('View Details', 'paiges-markdown-viewer')
-        );
-        $links[] = $details_link;
-        $links[] = '<a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">' . __('Donate', 'paiges-markdown-viewer') . '</a>';
-    }
-    return $links;
-}
-add_filter('plugin_row_meta', 'paiges_markdown_viewer_row_meta', 10, 2);
-
-/**
- * Provide plugin information for the details popup
- */
-function paiges_markdown_viewer_plugin_info($result, $action, $args) {
-    if ($action !== 'plugin_information') {
-        return $result;
-    }
-
-    if (!isset($args->slug) || $args->slug !== 'paiges_markdown_viewer') {
-        return $result;
-    }
-
-    $plugin_info = new stdClass();
-    $plugin_info->name = "Paige's Markdown Viewer";
-    $plugin_info->slug = 'paiges_markdown_viewer';
-    $plugin_info->version = '1.0.0';
-    $plugin_info->author = '<a href="https://paigejulianne.com/">Paige Julianne Sullivan</a>';
-    $plugin_info->homepage = 'https://paigejulianne.com/';
-    $plugin_info->requires = '5.0';
-    $plugin_info->tested = '6.9';
-    $plugin_info->requires_php = '7.4';
-    $plugin_info->downloaded = 0;
-    $plugin_info->last_updated = date('Y-m-d');
-    $plugin_info->sections = array(
-        'description' => '
-            <p>A customizable WordPress block that renders Markdown content with proper styling. Enter markdown directly in the editor or load it from a URL (including GitHub files).</p>
-            <h4>Features</h4>
-            <ul>
-                <li>Gutenberg block for the WordPress editor</li>
-                <li>Shortcode support for classic editor and widgets</li>
-                <li>Load markdown from external URLs</li>
-                <li>Automatic GitHub URL conversion to raw format</li>
-                <li>Scrollable content with max-height option</li>
-                <li>Clean, readable styling with dark mode support</li>
-            </ul>
-        ',
-        'installation' => '
-            <ol>
-                <li>Upload the plugin folder to <code>/wp-content/plugins/</code></li>
-                <li>Activate the plugin through the Plugins menu in WordPress</li>
-                <li>Use the block editor to add "Paige\'s Markdown Viewer" or use the shortcode</li>
-            </ol>
-        ',
-        'usage' => '
-            <h4>Block Editor</h4>
-            <p>Search for "Markdown" in the block inserter or find it in the Text category.</p>
-            <h4>Shortcode</h4>
-            <p>Use the <code>[paiges_markdown]</code> shortcode:</p>
-            <pre>[paiges_markdown]
-# Your Markdown Here
-This is **bold** and *italic* text.
-[/paiges_markdown]</pre>
-            <p>Or load from a URL:</p>
-            <pre>[paiges_markdown url="https://example.com/readme.md"]</pre>
-            <pre>[paiges_markdown url="https://github.com/user/repo/blob/main/README.md" max_height="400"]</pre>
-        ',
-        'other_notes' => '
-            <h4>Support Development</h4>
-            <p>If you find this plugin useful, please consider <a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">making a donation</a> to support continued development.</p>
-        ',
-    );
-    $plugin_info->donate_link = 'https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN';
-    $plugin_info->banners = array();
-    $plugin_info->icons = array();
-
-    return $plugin_info;
-}
-add_filter('plugins_api', 'paiges_markdown_viewer_plugin_info', 20, 3);
