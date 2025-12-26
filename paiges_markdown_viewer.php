@@ -288,12 +288,12 @@ function paiges_markdown_viewer_row_meta($links, $file) {
         $details_link = sprintf(
             '<a href="%s" class="thickbox open-plugin-details-modal" aria-label="%s" data-title="%s">%s</a>',
             esc_url(admin_url('plugin-install.php?tab=plugin-information&plugin=paiges_markdown_viewer&TB_iframe=true&width=600&height=550')),
-            esc_attr__("More information about Paige's Markdown Viewer"),
-            esc_attr__("Paige's Markdown Viewer"),
-            __('View Details')
+            esc_attr__("More information about Paige's Markdown Viewer", 'paiges_markdown_viewer'),
+            esc_attr__("Paige's Markdown Viewer", 'paiges_markdown_viewer'),
+            __('View Details', 'paiges_markdown_viewer')
         );
         $links[] = $details_link;
-        $links[] = '<a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">' . __('Donate') . '</a>';
+        $links[] = '<a href="https://www.paypal.com/donate/?hosted_button_id=3X8QMH7RTRTGN" target="_blank" rel="noopener noreferrer">' . __('Donate', 'paiges_markdown_viewer') . '</a>';
     }
     return $links;
 }
